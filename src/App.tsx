@@ -49,11 +49,27 @@ const registrationSchema = z.object({
 type RegistrationData = z.infer<typeof registrationSchema>;
 
 const GAME_IMAGES = [
-  "https://picsum.photos/seed/cod1/1200/800",
-  "https://picsum.photos/seed/cod2/1200/800",
-  "https://picsum.photos/seed/cod3/1200/800",
-  "https://picsum.photos/seed/cod4/1200/800",
-  "https://picsum.photos/seed/cod5/1200/800",
+  "/images/COD1.jpg",
+  "/images/COD2.jpg",
+  "/images/COD3.jpg",
+  "/images/COD4.jpg",
+  "/images/COD5.jpg",
+  "/images/COD6.jpg",
+];
+
+const GAME_MAPS = [
+  "/images/Crossfire.jpg",
+  "/images/Firing_Range.jpg",
+  "/images/HIGHRISE.jpg",
+  "/images/Nuketown.jpg",
+  "/images/RAID.jpg",
+  "/images/Shipment.jpg",
+  "/images/Shoot house.jpg",
+  "/images/TAKEOFF.jpg",
+  "/images/Cage.jpg",
+  "/images/COASTAL.jpg",
+  "/images/CRASH.jpg",
+  "/images/STANDOFF.jpg",
 ];
 
 const SectionHeading = ({ title, subtitle, light = false }: { title: string, subtitle: string, light?: boolean }) => {
@@ -569,7 +585,7 @@ export default function App() {
             <AnimatePresence mode="wait">
               <motion.img 
                 key={currentImageIndex}
-                src={GAME_IMAGES[currentImageIndex]}
+                src={GAME_MAPS[currentImageIndex]}
                 initial={{ opacity: 0, x: 100 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -100 }}
@@ -581,13 +597,13 @@ export default function App() {
             
             <div className="absolute inset-0 flex items-center justify-between px-6 opacity-0 group-hover:opacity-100 transition-opacity">
               <button 
-                onClick={() => setCurrentImageIndex((prev) => (prev - 1 + GAME_IMAGES.length) % GAME_IMAGES.length)}
+                onClick={() => setCurrentImageIndex((prev) => (prev - 1 + GAME_MAPS.length) % GAME_MAPS.length)}
                 className="w-12 h-12 bg-black/50 backdrop-blur-md rounded-full flex items-center justify-center hover:bg-cod-orange transition-colors"
               >
                 <ChevronLeft className="w-6 h-6" />
               </button>
               <button 
-                onClick={() => setCurrentImageIndex((prev) => (prev + 1) % GAME_IMAGES.length)}
+                onClick={() => setCurrentImageIndex((prev) => (prev + 1) % GAME_MAPS.length)}
                 className="w-12 h-12 bg-black/50 backdrop-blur-md rounded-full flex items-center justify-center hover:bg-cod-orange transition-colors"
               >
                 <ChevronRight className="w-6 h-6" />
@@ -595,7 +611,7 @@ export default function App() {
             </div>
 
             <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2">
-              {GAME_IMAGES.map((_, i) => (
+              {GAME_MAPS.map((_, i) => (
                 <div 
                   key={i} 
                   className={cn("w-12 h-1 bg-white/20 transition-all", i === currentImageIndex && "bg-cod-orange w-20")}
