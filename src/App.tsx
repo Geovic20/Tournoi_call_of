@@ -261,7 +261,7 @@ export default function App() {
   return (
     <div className="min-h-screen bg-cod-dark selection:bg-cod-orange selection:text-white overflow-x-hidden">
       {/* Navigation */}
-      <nav className="fixed top-0 left-0 w-full z-50 px-6 py-8 flex justify-between items-center bg-gradient-to-b from-black/80 to-transparent backdrop-blur-sm">
+      <nav className="fixed top-0 left-0 w-full z-50 px-6 py-8 flex justify-between items-center bg-linear-to-b from-black/80 to-transparent backdrop-blur-sm">
         <div className="flex items-center gap-2">
           <div className="w-10 h-10 bg-cod-orange rounded-sm flex items-center justify-center font-display text-2xl">C</div>
           <span className="font-display text-xl tracking-tighter">THE CALL OF THE CODERS</span>
@@ -288,7 +288,7 @@ export default function App() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-sm p-6"
+            className="fixed inset-0 z-100 flex items-center justify-center bg-black/90 backdrop-blur-sm p-6"
           >
             <motion.div 
               initial={{ scale: 0.9, y: 20 }}
@@ -337,7 +337,7 @@ export default function App() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[150] bg-cod-dark overflow-y-auto"
+            className="fixed inset-0 z-150 bg-cod-dark overflow-y-auto"
           >
             {/* Admin Header */}
             <header className="sticky top-0 z-50 bg-cod-gray border-b border-white/10 px-8 py-6 flex items-center justify-between backdrop-blur-md">
@@ -381,7 +381,7 @@ export default function App() {
               </div>
 
               <div className="bg-cod-gray rounded-sm overflow-hidden border border-white/10">
-                <div className="p-6 border-b border-white/10 flex items-center justify-between bg-white/[0.02]">
+                <div className="p-6 border-b border-white/10 flex items-center justify-between bg-white/2">
                   <h3 className="font-display text-xl uppercase tracking-widest text-white">GESTION DES UNITÉS</h3>
                   <Users className="w-5 h-5 text-white/20" />
                 </div>
@@ -399,7 +399,7 @@ export default function App() {
                     </thead>
                     <tbody className="divide-y divide-white/5">
                       {registrations.map((reg) => (
-                        <tr key={reg.id} className="hover:bg-white/[0.02] transition-colors text-white">
+                        <tr key={reg.id} className="hover:bg-white/2 transition-colors text-white">
                           <td className="p-6 text-white/20 font-mono">{String(reg.id).padStart(3, '0')}</td>
                           <td className="p-6 font-bold text-cod-orange">{reg.teamName}</td>
                           <td className="p-6 text-[10px] text-white/60">
@@ -463,7 +463,7 @@ export default function App() {
               referrerPolicy="no-referrer"
             />
           </AnimatePresence>
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-cod-dark/50 to-cod-dark" />
+          <div className="absolute inset-0 bg-linear-to-b from-transparent via-cod-dark/50 to-cod-dark" />
         </motion.div>
 
         <motion.div 
@@ -837,7 +837,7 @@ export default function App() {
               <SectionHeading title="DÉPLOIEMENT" subtitle="Liste des escouades enrôlées" />
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 {registrations.length === 0 ? (
-                  <div className="col-span-full p-12 border border-white/5 text-center text-white/20 font-mono text-sm uppercase tracking-[0.4em] bg-white/[0.02]">
+                  <div className="col-span-full p-12 border border-white/5 text-center text-white/20 font-mono text-sm uppercase tracking-[0.4em] bg-white/2">
                     EN ATTENTE DE DÉPLOIEMENT DES UNITÉS...
                   </div>
                 ) : (
@@ -883,7 +883,7 @@ export default function App() {
                               key={i} 
                               className={cn(
                                 "p-3 text-xs font-mono flex items-center justify-between rounded-sm transition-all",
-                                team ? "bg-white/5 text-white border-l-2 border-cod-orange" : "bg-white/[0.02] text-white/10 border-l-2 border-transparent"
+                                team ? "bg-white/5 text-white border-l-2 border-cod-orange" : "bg-white/2 text-white/10 border-l-2 border-transparent"
                               )}
                             >
                               <div className="flex items-center gap-3">
@@ -927,11 +927,11 @@ export default function App() {
                 </div>
               </div>
 
-              <div className="relative bg-[#0a1128] border-4 border-[#1a2b4b] p-12 overflow-x-auto rounded-sm min-h-[900px] shadow-2xl">
+              <div className="relative bg-[#0a1128] border-4 border-[#1a2b4b] p-12 overflow-x-auto rounded-sm min-h-225 shadow-2xl">
                 {/* Header Decoration */}
-                <div className="absolute top-0 left-0 w-full h-20 bg-gradient-to-b from-[#1a2b4b] to-transparent opacity-50 pointer-events-none" />
+                <div className="absolute top-0 left-0 w-full h-20 bg-linear-to-b from-[#1a2b4b] to-transparent opacity-50 pointer-events-none" />
                 
-                <div className="relative z-10 flex flex-col items-center gap-12 min-w-[1400px]">
+                <div className="relative z-10 flex flex-col items-center gap-12 min-w-350">
                   <div className="text-center space-y-2">
                     <h4 className="font-display text-5xl text-white tracking-widest uppercase">
                       {activeBracketBlock === 'FINALE' ? 'LE CHOC DES TITANS' : 'TOURNOI ENTRE CROCHETS'}
@@ -1124,7 +1124,7 @@ export default function App() {
                 </div>
 
                 {/* Footer Decoration */}
-                <div className="absolute bottom-0 left-0 w-full h-20 bg-gradient-to-t from-[#1a2b4b] to-transparent opacity-50 pointer-events-none" />
+                <div className="absolute bottom-0 left-0 w-full h-20 bg-linear-to-t from-[#1a2b4b] to-transparent opacity-50 pointer-events-none" />
               </div>
             </div>
           </div>
