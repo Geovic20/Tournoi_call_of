@@ -1,0 +1,8 @@
+{
+  "name": "The Call of the Coders - JEI IFRI",
+  "description": "Official landing page and registration for the Call of Duty: Mobile tournament at IFRI Benin's Journées de l'Etudiant en Informatique.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
