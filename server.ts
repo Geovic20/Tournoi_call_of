@@ -1,9 +1,9 @@
-import express from "express";
 import { createServer as createViteServer } from "vite";
 import pkg from "pg";
 const { Pool } = pkg;
 import path from "path";
 import { fileURLToPath } from "url";
+import express, { Request, Response } from "express";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -51,7 +51,7 @@ async function startServer() {
   app.use(express.json());
 
   // API Routes
-  app.post("/api/register", async (req, res) => {
+  app.post("/api/register", async (req: Request, res: Response) => {
     try {
       const {
         teamName,
@@ -99,7 +99,7 @@ async function startServer() {
     }
   });
 
-  app.get("/api/registrations", async (req, res) => {
+  app.get("/api/registrations", async (req: Request, res: Response) => {
     try {
       const result = await pool.query("SELECT * FROM registrations ORDER BY createdAt ASC");
       res.json(result.rows);
@@ -112,7 +112,7 @@ async function startServer() {
   // Admin Routes
   const ADMIN_PASSWORD = "admin_jei_2026";
 
-  app.patch("/api/admin/teams/:id/paid", async (req, res) => {
+  app.patch("/api/admin/teams/:id/paid", async (req: Request, res: Response) => {
     try {
       if (req.headers["admin-password"] !== ADMIN_PASSWORD) return res.status(401).json({ error: "Unauthorized" });
       const { isPaid } = req.body;
@@ -124,7 +124,7 @@ async function startServer() {
     }
   });
 
-  app.delete("/api/admin/teams/:id", async (req, res) => {
+  app.delete("/api/admin/teams/:id", async (req: Request, res: Response) => {
     try {
       if (req.headers["admin-password"] !== ADMIN_PASSWORD) return res.status(401).json({ error: "Unauthorized" });
       await pool.query("DELETE FROM registrations WHERE id = $1", [req.params.id]);
@@ -135,7 +135,7 @@ async function startServer() {
     }
   });
 
-  app.get("/api/matches", async (req, res) => {
+  app.get("/api/matches", async (req: Request, res: Response) => {
     try {
       const result = await pool.query("SELECT * FROM match_winners");
       res.json(result.rows);
@@ -145,7 +145,7 @@ async function startServer() {
     }
   });
 
-  app.post("/api/admin/matches", async (req, res) => {
+  app.post("/api/admin/matches", async (req: Request, res: Response) => {
     try {
       if (req.headers["admin-password"] !== ADMIN_PASSWORD) return res.status(401).json({ error: "Unauthorized" });
       const { matchId, winnerId } = req.body;
@@ -157,7 +157,7 @@ async function startServer() {
     }
   });
 
-  app.delete("/api/admin/matches", async (req, res) => {
+  app.delete("/api/admin/matches", async (req: Request, res: Response) => {
     try {
       if (req.headers["admin-password"] !== ADMIN_PASSWORD) return res.status(401).json({ error: "Unauthorized" });
       await pool.query("DELETE FROM match_winners");
