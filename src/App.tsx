@@ -5,12 +5,8 @@ import {
   Users, 
   Target, 
   Zap, 
-  Mail, 
-  Phone, 
-  Gamepad2, 
   ChevronRight, 
   Loader2,
-  CheckCircle2,
   AlertCircle,
   ChevronLeft,
   Crosshair,
@@ -22,8 +18,6 @@ import {
   Trash2,
   Lock,
   Unlock,
-  Eye,
-  EyeOff
 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -1168,7 +1162,7 @@ export default function App() {
           <div className="flex gap-12">
             <div className="text-center md:text-right">
               <p className="text-white/30 text-[10px] font-mono uppercase tracking-widest mb-2">Contact</p>
-              <p className="font-bold text-sm">jei@ifri.bj</p>
+              <p className="font-bold text-sm">kpogeovic20@gmail.com</p>
             </div>
             <div className="text-center md:text-right">
               <p className="text-white/30 text-[10px] font-mono uppercase tracking-widest mb-2">Lieu</p>

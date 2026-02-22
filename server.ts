@@ -184,8 +184,14 @@ async function startServer() {
     });
   }
 
+  // Start the server
   app.listen(PORT, "0.0.0.0", () => {
     console.log(`Server running on port ${PORT}`);
+  });
+
+  //UptimeRobot ping every 5 minutes
+  app.get("/api/health", (req: Request, res: Response) => {
+    res.status(200).json({ status: "ok" });
   });
 }
 
