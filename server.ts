@@ -1,24 +1,29 @@
 import express from "express";
 import { createServer as createViteServer } from "vite";
-import Database from "better-sqlite3";
+import pkg from "pg";
+const { Pool } = pkg;
 import path from "path";
 import { fileURLToPath } from "url";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
 const isProduction = process.env.NODE_ENV === "production";
 
-const dbPath = isProduction
-  ? "/opt/render/project/src/tournament.db"
-  : path.join(__dirname, "tournament.db");
-  
-const db = new Database(dbPath);
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: process.env.NODE_ENV === "production" ? {
+    rejectUnauthorized: false,
+  } : false,
+});
+
+if (!process.env.DATABASE_URL) {
+  throw new Error("DATABASE_URL is not defined");
+}
 
 // Initialize database
-db.exec(`
+await pool.query(`
   CREATE TABLE IF NOT EXISTS registrations (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id SERIAL PRIMARY KEY,
     teamName TEXT NOT NULL,
     player1Pseudo TEXT NOT NULL,
     player1Email TEXT NOT NULL,
@@ -26,14 +31,13 @@ db.exec(`
     player2Pseudo TEXT NOT NULL,
     player2Email TEXT NOT NULL,
     player2Whatsapp TEXT NOT NULL,
-    isPaid INTEGER DEFAULT 0,
-    createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
+    isPaid BOOLEAN DEFAULT FALSE,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
   );
 
   CREATE TABLE IF NOT EXISTS match_winners (
-    id TEXT PRIMARY KEY, -- e.g. "ALPHA-R1-M1"
-    winnerId INTEGER,
-    FOREIGN KEY(winnerId) REFERENCES registrations(id)
+    id TEXT PRIMARY KEY,
+    winnerId INTEGER REFERENCES registrations(id)
   );
 `);
 
@@ -44,7 +48,7 @@ async function startServer() {
   app.use(express.json());
 
   // API Routes
-  app.post("/api/register", (req, res) => {
+  app.post("/api/register", async (req, res) => {
     try {
       const {
         teamName,
@@ -57,27 +61,33 @@ async function startServer() {
       } = req.body;
 
       // Check if we already have 16 teams
-      const count = db.prepare("SELECT COUNT(*) as count FROM registrations").get() as { count: number };
-      if (count.count >= 16) {
-        return res.status(400).json({ error: "Tournament is full! (Max 16 teams)" });
-      }
+      const countResult = await pool.query(
+      "SELECT COUNT(*) FROM registrations"
+    );
 
-      const stmt = db.prepare(`
-        INSERT INTO registrations (
-          teamName, player1Pseudo, player1Email, player1Whatsapp,
-          player2Pseudo, player2Email, player2Whatsapp
-        ) VALUES (?, ?, ?, ?, ?, ?, ?)
-      `);
+    const count = Number(countResult.rows[0].count);
 
-      stmt.run(
+    if (count >= 16) {
+      return res.status(400).json({
+        error: "Tournament is full! (Max 16 teams)",
+      });
+    }
+
+      await pool.query(
+      `INSERT INTO registrations (
+        teamName, player1Pseudo, player1Email, player1Whatsapp,
+        player2Pseudo, player2Email, player2Whatsapp
+      ) VALUES ($1,$2,$3,$4,$5,$6,$7)`,
+      [
         teamName,
         player1Pseudo,
         player1Email,
         player1Whatsapp,
         player2Pseudo,
         player2Email,
-        player2Whatsapp
-      );
+        player2Whatsapp,
+      ]
+    );
 
       res.json({ success: true, message: "Inscription réussie ! Vous allez être ajouté au groupe WhatsApp pour le paiement des 2000 FCFA." });
     } catch (error) {
@@ -86,43 +96,73 @@ async function startServer() {
     }
   });
 
-  app.get("/api/registrations", (req, res) => {
-    const rows = db.prepare("SELECT * FROM registrations ORDER BY createdAt ASC").all();
-    res.json(rows);
+  app.get("/api/registrations", async (req, res) => {
+    try {
+      const result = await pool.query("SELECT * FROM registrations ORDER BY createdAt ASC");
+      res.json(result.rows);
+    } catch (error) {
+      console.error("Error fetching registrations:", error);
+      res.status(500).json({ error: "Failed to fetch registrations." });
+    }
   });
 
   // Admin Routes
   const ADMIN_PASSWORD = "admin_jei_2026";
 
-  app.patch("/api/admin/teams/:id/paid", (req, res) => {
-    if (req.headers["admin-password"] !== ADMIN_PASSWORD) return res.status(401).json({ error: "Unauthorized" });
-    const { isPaid } = req.body;
-    db.prepare("UPDATE registrations SET isPaid = ? WHERE id = ?").run(isPaid ? 1 : 0, req.params.id);
-    res.json({ success: true });
+  app.patch("/api/admin/teams/:id/paid", async (req, res) => {
+    try {
+      if (req.headers["admin-password"] !== ADMIN_PASSWORD) return res.status(401).json({ error: "Unauthorized" });
+      const { isPaid } = req.body;
+      await pool.query("UPDATE registrations SET isPaid = $1 WHERE id = $2", [isPaid, req.params.id]);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error updating team:", error);
+      res.status(500).json({ error: "Failed to update team." });
+    }
   });
 
-  app.delete("/api/admin/teams/:id", (req, res) => {
-    if (req.headers["admin-password"] !== ADMIN_PASSWORD) return res.status(401).json({ error: "Unauthorized" });
-    db.prepare("DELETE FROM registrations WHERE id = ?").run(req.params.id);
-    res.json({ success: true });
+  app.delete("/api/admin/teams/:id", async (req, res) => {
+    try {
+      if (req.headers["admin-password"] !== ADMIN_PASSWORD) return res.status(401).json({ error: "Unauthorized" });
+      await pool.query("DELETE FROM registrations WHERE id = $1", [req.params.id]);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting team:", error);
+      res.status(500).json({ error: "Failed to delete team." });
+    }
   });
 
-  app.get("/api/matches", (req, res) => {
-    const rows = db.prepare("SELECT * FROM match_winners").all();
-    res.json(rows);
+  app.get("/api/matches", async (req, res) => {
+    try {
+      const result = await pool.query("SELECT * FROM match_winners");
+      res.json(result.rows);
+    } catch (error) {
+      console.error("Error fetching matches:", error);
+      res.status(500).json({ error: "Failed to fetch matches." });
+    }
   });
 
-  app.post("/api/admin/matches", (req, res) => {
-    if (req.headers["admin-password"] !== ADMIN_PASSWORD) return res.status(401).json({ error: "Unauthorized" });
-    const { matchId, winnerId } = req.body;
-    db.prepare("INSERT OR REPLACE INTO match_winners (id, winnerId) VALUES (?, ?)").run(matchId, winnerId);
-    res.json({ success: true });
+  app.post("/api/admin/matches", async (req, res) => {
+    try {
+      if (req.headers["admin-password"] !== ADMIN_PASSWORD) return res.status(401).json({ error: "Unauthorized" });
+      const { matchId, winnerId } = req.body;
+      await pool.query("INSERT INTO match_winners (id, winnerId) VALUES ($1, $2) ON CONFLICT (id) DO UPDATE SET winnerId = $2", [matchId, winnerId]);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error creating match:", error);
+      res.status(500).json({ error: "Failed to create match." });
+    }
   });
 
-  app.delete("/api/admin/matches", (req, res) => {
-    if (req.headers["admin-password"] !== ADMIN_PASSWORD) return res.status(401).json({ error: "Unauthorized" });
-    db.prepare("DELETE FROM match_winners").run();
-    res.json({ success: true });
+  app.delete("/api/admin/matches", async (req, res) => {
+    try {
+      if (req.headers["admin-password"] !== ADMIN_PASSWORD) return res.status(401).json({ error: "Unauthorized" });
+      await pool.query("DELETE FROM match_winners");
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting matches:", error);
+      res.status(500).json({ error: "Failed to delete matches." });
+    }
   });
 
   // Vite middleware for development
