@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence, useScroll, useTransform, useInView } from "motion/react";
-import { 
-  Trophy, 
+import { Trophy, 
   Users, 
   Target, 
   Zap, 
@@ -234,7 +233,7 @@ export default function App() {
         )}
       >
         <div className={cn("w-2 h-2 rounded-full shrink-0", side === 'left' ? "bg-red-500" : "bg-blue-500")} />
-        <span className="truncate">{team ? team.teamName.toUpperCase() : (label || "EN ATTENTE")}</span>
+        <span className="truncate">{team?.teamName?.toUpperCase() || label || "EN ATTENTE"}</span>
         {isAdmin && team && (
           <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-black text-white text-[8px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap z-50">
             CLIQUER POUR DÉSIGNER VAINQUEUR
@@ -899,7 +898,7 @@ export default function App() {
                               <div className="flex items-center gap-3">
                                 <span className="opacity-30">{String(i + 1).padStart(2, '0')}</span>
                                 <span className={cn(team ? "font-bold" : "italic")}>
-                                  {team ? team.teamName.toUpperCase() : "EN ATTENTE..."}
+                                  {team?.teamName?.toUpperCase() || "EN ATTENTE..."}
                                 </span>
                               </div>
                               {team && <Zap className="w-3 h-3 text-cod-orange animate-pulse" />}
