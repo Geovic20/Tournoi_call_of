@@ -101,7 +101,24 @@ async function startServer() {
 
   app.get("/api/registrations", async (req: Request, res: Response) => {
     try {
-      const result = await pool.query("SELECT * FROM registrations ORDER BY createdAt ASC");
+      // Postgres folds unquoted identifiers to lowercase, so columns
+      // end up as teamname, player1pseudo, etc.  We alias them back
+      // to camelCase for the frontend convenience.
+      const result = await pool.query(
+        `SELECT
+           id,
+           teamname AS "teamName",
+           player1pseudo AS "player1Pseudo",
+           player1email AS "player1Email",
+           player1whatsapp AS "player1Whatsapp",
+           player2pseudo AS "player2Pseudo",
+           player2email AS "player2Email",
+           player2whatsapp AS "player2Whatsapp",
+           ispaid AS "isPaid",
+           createdat AS "createdAt"
+         FROM registrations
+         ORDER BY createdat ASC`
+      );
       res.json(result.rows);
     } catch (error) {
       console.error("Error fetching registrations:", error);
@@ -137,7 +154,10 @@ async function startServer() {
 
   app.get("/api/matches", async (req: Request, res: Response) => {
     try {
-      const result = await pool.query("SELECT * FROM match_winners");
+      // alias winnerid to winnerId so the client code can use camelCase
+      const result = await pool.query(
+        `SELECT id, winnerid AS "winnerId" FROM match_winners`
+      );
       res.json(result.rows);
     } catch (error) {
       console.error("Error fetching matches:", error);

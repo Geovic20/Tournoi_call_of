@@ -122,7 +122,23 @@ export default function App() {
     try {
       const res = await fetch("/api/registrations");
       const data = await res.json();
-      setRegistrations(data);
+      // some deployments (especially before we aliased columns) returned
+      // lowercase keys; normalize them here so the UI can rely on
+      // camelCase properties.
+      const normalized = data.map((r: any) => ({
+        id: r.id,
+        teamName: r.teamName ?? r.teamname ?? "",
+        player1Pseudo: r.player1Pseudo ?? r.player1pseudo ?? "",
+        player1Email: r.player1Email ?? r.player1email ?? "",
+        player1Whatsapp: r.player1Whatsapp ?? r.player1whatsapp ?? "",
+        player2Pseudo: r.player2Pseudo ?? r.player2pseudo ?? "",
+        player2Email: r.player2Email ?? r.player2email ?? "",
+        player2Whatsapp: r.player2Whatsapp ?? r.player2whatsapp ?? "",
+        isPaid: r.isPaid ?? r.ispaid ?? false,
+        createdAt: r.createdAt ?? r.createdat,
+      }));
+      console.debug("registrations fetched", normalized);
+      setRegistrations(normalized);
     } catch (e) {
       console.error(e);
     }
@@ -132,8 +148,11 @@ export default function App() {
     try {
       const res = await fetch("/api/matches");
       const data = await res.json();
+      // if columns were lowercase previously, handle that as well
       const winnersMap = data.reduce((acc: any, curr: any) => {
-        acc[curr.id] = curr.winnerId;
+        const id = curr.id;
+        const winnerId = curr.winnerId ?? curr.winnerid;
+        if (id) acc[id] = winnerId;
         return acc;
       }, {});
       setMatchWinners(winnersMap);
