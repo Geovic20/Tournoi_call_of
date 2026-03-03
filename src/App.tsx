@@ -420,7 +420,8 @@ export default function App() {
                         <th className="p-6">ID</th>
                         <th className="p-6">Équipe</th>
                         <th className="p-6">Joueurs</th>
-                        <th className="p-6">Contact</th>
+                        <th className="p-6">Numéros</th>
+                        <th className="p-6">Emails</th>
                         <th className="p-6">Statut</th>
                         <th className="p-6 text-right">Actions</th>
                       </tr>
@@ -436,7 +437,18 @@ export default function App() {
                               <span className="text-white/20">{reg.player2Pseudo}</span>
                             </div>
                           </td>
-                          <td className="p-6 text-[10px] text-white/60">{reg.player1Whatsapp}</td>
+                          <td className="p-6 text-[10px] text-white/60">
+                            <div className="flex flex-col gap-1">
+                              <span>{reg.player1Whatsapp}</span>
+                              <span className="text-white/20">{reg.player2Whatsapp}</span>
+                            </div>
+                          </td>
+                          <td className="p-6 text-[10px] text-white/60">
+                            <div className="flex flex-col gap-1">
+                              <span>{reg.player1Email}</span>
+                              <span className="text-white/20">{reg.player2Email}</span>
+                            </div>
+                          </td>
                           <td className="p-6">
                             <button 
                               onClick={() => updateTeamPaid(reg.id, !reg.isPaid)}
